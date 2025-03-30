@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}PDF Extraction Results{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">PDF Extraction Results</h4>
+                </div>
+                <div class="card-body">
+                    <h5>Extracted from: {{ result.file_name }}</h5>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Metadata</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Title:</strong> {{ result.metadata.title or "Not available" }}</p>
+                                    <p><strong>Author:</strong> {{ result.metadata.author or "Not available" }}</p>
+                                    <p><strong>Subject:</strong> {{ result.metadata.subject or "Not available" }}</p>
+                                    <p><strong>Pages:</strong> {{ result.page_count }}</p>
+                                    <p><strong>Keywords:</strong> {{ result.metadata.keywords or "Not available" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Output Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Output Format:</strong> {{ result.output_format|upper }}</p>
+                                    <p><strong>Output File:</strong> {{ result.output_path.split('/')[-1] }}</p>
+                                    <p><strong>Extraction Time:</strong> {{ result.timestamp }}</p>
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ url_for('view_file', filename=result.output_path.split('/')[-1]) }}" class="btn btn-primary">View Full Output</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Content Preview</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="content-preview">
+                                <pre class="p-3 bg-light">{{ result.content[:500] }}{% if result.content|length > 500 %}...{% endif %}</pre>
+                            </div>
+                            <p class="text-muted mt-2">
+                                <small>Showing first 500 characters. Click "View Full Output" above to see the complete content.</small>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if result.extracted_images and result.extracted_images|length > 0 %}
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Extracted Images ({{ result.extracted_images|length }})</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for image in result.extracted_images %}
+                                <div class="col-md-3 mb-3">
+                                    <div class="card">
+                                        <img src="{{ url_for('serve_image', image_path=image.path) }}" class="card-img-top" alt="Extracted image">
+                                        <div class="card-body">
+                                            <p class="card-text"><small>Page {{ image.page }}</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('pdf_extract') }}" class="btn btn-secondary">Extract Another PDF</a>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

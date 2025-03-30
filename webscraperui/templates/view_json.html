@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Web Scraper - View JSON{% endblock %}
+
+{% block extra_css %}
+<style>
+    pre.json-viewer {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 15px;
+        max-height: 600px;
+        overflow: auto;
+    }
+    .string { color: #008000; }
+    .number { color: #0000ff; }
+    .boolean { color: #b22222; }
+    .null { color: #808080; }
+    .key { color: #a52a2a; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h1 class="h4 mb-0">
+                    <i class="fas fa-file-code me-2"></i>{{ filename }}
+                </h1>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <a href="{{ url_for('history') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-2"></i>Back to History
+                    </a>
+                </div>
+                
+                <pre class="json-viewer" id="json-display">{{ content }}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Format the JSON for display
+        const jsonContent = document.getElementById('json-display').textContent;
+        try {
+            const obj = JSON.parse(jsonContent);
+            const formatted = JSON.stringify(obj, null, 2);
+            
+            // Syntax highlighting
+            const highlighted = formatted
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+                    let cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+            
+            document.getElementById('json-display').innerHTML = highlighted;
+        } catch(e) {
+            console.error('Error parsing JSON:', e);
+            // If JSON parsing fails, just show the raw content
+        }
+    });
+</script>
+{% endblock %}

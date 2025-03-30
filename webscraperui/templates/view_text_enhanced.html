@@ -1,0 +1,416 @@
+{% extends "base_enhanced.html" %}
+
+{% block title %}Web Scraper Pro - View File{% endblock %}
+
+{% block extra_css %}
+<style>
+    .content-container {
+        background-color: var(--bg-color);
+        border-radius: var(--border-radius-lg);
+        padding: 25px;
+        font-family: var(--font-family-mono);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        overflow-x: auto;
+        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+        transition: background-color var(--transition-normal) ease,
+                    box-shadow var(--transition-normal) ease;
+    }
+    
+    .file-info {
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius-xl);
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: var(--card-shadow);
+        transition: background-color var(--transition-normal) ease;
+    }
+    
+    .file-info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border-color);
+        transition: border-color var(--transition-normal) ease;
+    }
+    
+    .file-info-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .file-info-label {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        font-weight: 500;
+        width: 100px;
+    }
+    
+    .file-info-value {
+        font-weight: 500;
+        color: var(--text-color);
+    }
+    
+    .badge-file-type {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--border-radius-md);
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all var(--transition-normal) ease;
+    }
+    
+    .badge-txt {
+        background-color: rgba(203, 213, 225, 0.5);
+        color: #475569;
+    }
+    
+    .dark-mode .badge-txt {
+        background-color: rgba(203, 213, 225, 0.2);
+        color: #e2e8f0;
+    }
+    
+    .badge-html {
+        background-color: rgba(74, 222, 128, 0.2);
+        color: #166534;
+    }
+    
+    .dark-mode .badge-html {
+        color: #4ade80;
+    }
+    
+    .badge-json {
+        background-color: rgba(96, 165, 250, 0.2);
+        color: #1e40af;
+    }
+    
+    .dark-mode .badge-json {
+        color: #60a5fa;
+    }
+    
+    .line-numbers {
+        counter-reset: line;
+        color: var(--text-muted);
+        transition: color var(--transition-normal) ease;
+    }
+    
+    .line-numbers > div {
+        counter-increment: line;
+        padding-left: 3.5em;
+        position: relative;
+        transition: background-color var(--transition-fast) ease;
+    }
+    
+    .line-numbers > div:before {
+        content: counter(line);
+        position: absolute;
+        left: 0;
+        width: 2.5em;
+        text-align: right;
+        color: var(--gray-color);
+        font-size: 0.85em;
+        padding-right: 1em;
+        border-right: 1px solid var(--border-color);
+        margin-right: 1em;
+        user-select: none;
+        transition: all var(--transition-normal) ease;
+    }
+    
+    .line-numbers > div:hover {
+        background-color: rgba(67, 97, 238, 0.05);
+    }
+    
+    .dark-mode .line-numbers > div:hover {
+        background-color: rgba(96, 165, 250, 0.05);
+    }
+    
+    .content-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+    
+    .btn-copy {
+        padding: 6px 12px;
+        font-size: 0.875rem;
+        border-radius: var(--border-radius-md);
+    }
+    
+    .search-control {
+        display: flex;
+        align-items: center;
+    }
+    
+    .search-input {
+        max-width: 250px;
+        border-radius: var(--border-radius-md) 0 0 var(--border-radius-md);
+        border: 1px solid var(--border-color);
+        padding: 6px 12px;
+        font-size: 0.875rem;
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        transition: all var(--transition-normal) ease;
+    }
+    
+    .search-input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+    
+    .dark-mode .search-input {
+        background-color: var(--dark-color);
+        border-color: var(--border-color);
+        color: var(--light-color);
+    }
+    
+    .btn-search {
+        border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+        padding: 6px 12px;
+        font-size: 0.875rem;
+    }
+    
+    .highlight {
+        background-color: rgba(251, 191, 36, 0.2);
+        color: var(--dark-color);
+        border-radius: var(--border-radius-sm);
+        padding: 0 var(--spacing-1);
+        transition: all var(--transition-normal) ease;
+    }
+    
+    .dark-mode .highlight {
+        background-color: rgba(251, 191, 36, 0.3);
+        color: var(--light-color);
+    }
+    
+    #searchFeedback {
+        margin-top: 8px;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        transition: color var(--transition-normal) ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h1 class="h3 mb-0">File Viewer</h1>
+        <a href="{{ url_for('history') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to History
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3 mb-4">
+        <!-- File Information Panel -->
+        <div class="file-info card-hover-effect shadow-lg">
+            <h5 class="mb-3">File Information</h5>
+            
+            <div class="file-info-item">
+                <span class="file-info-label">Type</span>
+                <span class="file-info-value">
+                    {% if filename.endswith('.html') %}
+                        <span class="badge-file-type badge-html">HTML</span>
+                    {% elif filename.endswith('.json') %}
+                        <span class="badge-file-type badge-json">JSON</span>
+                    {% else %}
+                        <span class="badge-file-type badge-txt">TXT</span>
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="file-info-item">
+                <span class="file-info-label">Size</span>
+                <span class="file-info-value">{{ (content|length / 1024)|round(1) }} KB</span>
+            </div>
+            
+            <div class="file-info-item">
+                <span class="file-info-label">Lines</span>
+                <span class="file-info-value">{{ content.split('\n')|length }}</span>
+            </div>
+            
+            <div class="file-info-item">
+                <span class="file-info-label">Words</span>
+                <span class="file-info-value">{{ content.split()|length }}</span>
+            </div>
+        </div>
+        
+        <!-- Actions Panel -->
+        <div class="card card-hover-effect shadow-lg">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" id="btnCopyContent">
+                        <i class="fas fa-copy me-2"></i>Copy All Content
+                    </button>
+                    
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-spider me-2"></i>Scrape New URL
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <!-- Content Display Card -->
+        <div class="card card-hover-effect shadow-lg">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ filename }}</h5>
+                    
+                    <div class="search-control">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search content...">
+                        <button class="btn-search btn btn-primary" id="btnSearch">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="searchFeedback" style="display: none;"></div>
+            </div>
+            <div class="card-body p-0">
+                <div class="content-container">
+                    <div class="line-numbers" id="contentWithLineNumbers">
+                        {% for line in content.split('\n') %}
+                            <div>{{ line }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Copy content functionality
+        const btnCopyContent = document.getElementById('btnCopyContent');
+        if (btnCopyContent) {
+            btnCopyContent.addEventListener('click', function() {
+                const content = `{{ content|replace("\n", "\\n")|replace("'", "\\'") }}`;
+                navigator.clipboard.writeText(content)
+                    .then(() => {
+                        // Show success message
+                        btnCopyContent.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+                        btnCopyContent.classList.add('btn-success');
+                        btnCopyContent.classList.remove('btn-primary');
+                        
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            btnCopyContent.innerHTML = '<i class="fas fa-copy me-2"></i>Copy All Content';
+                            btnCopyContent.classList.add('btn-primary');
+                            btnCopyContent.classList.remove('btn-success');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Error copying content: ', err);
+                    });
+            });
+        }
+        
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const btnSearch = document.getElementById('btnSearch');
+        const contentWithLineNumbers = document.getElementById('contentWithLineNumbers');
+        const searchFeedback = document.getElementById('searchFeedback');
+        
+        if (searchInput && btnSearch && contentWithLineNumbers && searchFeedback) {
+            btnSearch.addEventListener('click', function() {
+                const searchTerm = searchInput.value.toLowerCase();
+                if (!searchTerm) return;
+                
+                // Remove existing highlights
+                const highlighted = contentWithLineNumbers.querySelectorAll('.highlight');
+                highlighted.forEach(el => {
+                    el.outerHTML = el.innerHTML;
+                });
+                
+                // Add new highlights
+                const contentLines = contentWithLineNumbers.querySelectorAll('div');
+                let foundMatches = 0;
+                let firstMatch = null;
+                
+                contentLines.forEach(line => {
+                    const text = line.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        foundMatches++;
+                        const regex = new RegExp(searchTerm, 'gi');
+                        line.innerHTML = line.innerHTML.replace(regex, match => 
+                            `<span class="highlight">${match}</span>`
+                        );
+                        
+                        if (!firstMatch) {
+                            firstMatch = line.querySelector('.highlight');
+                        }
+                    }
+                });
+                
+                // Show search results count
+                searchFeedback.style.display = 'block';
+                if (foundMatches > 0) {
+                    searchInput.style.borderColor = '#4ade80';
+                    searchFeedback.textContent = `Found ${foundMatches} matches`;
+                    searchFeedback.style.color = 'var(--success-color)';
+                    
+                    // Scroll to first match
+                    if (firstMatch) {
+                        firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else {
+                    searchInput.style.borderColor = '#f87171';
+                    searchFeedback.textContent = 'No matches found';
+                    searchFeedback.style.color = 'var(--danger-color)';
+                }
+                
+                // Reset border color after 2 seconds
+                setTimeout(() => {
+                    searchInput.style.borderColor = '';
+                }, 2000);
+            });
+            
+            // Search on Enter key
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    btnSearch.click();
+                }
+            });
+        }
+        
+        // Add fade-in animation to the content
+        const contentContainer = document.querySelector('.content-container');
+        if (contentContainer) {
+            contentContainer.style.opacity = '0';
+            contentContainer.style.transform = 'translateY(20px)';
+            contentContainer.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                contentContainer.style.opacity = '1';
+                contentContainer.style.transform = 'translateY(0)';
+            }, 100);
+        }
+        
+        // Add fade-in animation to the file info panels
+        const fileInfoPanels = document.querySelectorAll('.file-info, .card');
+        fileInfoPanels.forEach((panel, index) => {
+            panel.style.opacity = '0';
+            panel.style.transform = 'translateY(20px)';
+            panel.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            panel.style.transitionDelay = (index * 0.1) + 's';
+            
+            setTimeout(() => {
+                panel.style.opacity = '1';
+                panel.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}

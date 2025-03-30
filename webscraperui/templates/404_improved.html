@@ -1,0 +1,91 @@
+{% extends "base_improved.html" %}
+
+{% block title %}Web Scraper Pro - Page Not Found{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .error-code {
+        font-size: 9rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1;
+        margin-bottom: 20px;
+        text-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+    }
+    
+    .error-message {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 20px;
+    }
+    
+    .error-description {
+        font-size: 1.1rem;
+        color: var(--gray-color);
+        max-width: 600px;
+        margin: 0 auto 30px;
+    }
+    
+    .error-image {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 30px;
+    }
+    
+    .btn-lg {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="error-container">
+            <div class="error-code">404</div>
+            <h1 class="error-message">Page Not Found</h1>
+            <p class="error-description">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+            
+            <div class="mb-5">
+                <svg width="300" height="200" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Web -->
+                    <path d="M300,100 C400,100 450,200 450,250 C450,300 400,350 300,350 C200,350 150,300 150,250 C150,200 200,100 300,100 Z" fill="none" stroke="#4361ee" stroke-width="6"/>
+                    <path d="M150,250 L450,250" stroke="#4361ee" stroke-width="4" stroke-dasharray="10,10"/>
+                    <path d="M300,100 L300,350" stroke="#4361ee" stroke-width="4" stroke-dasharray="10,10"/>
+                    
+                    <!-- Spider -->
+                    <circle cx="300" cy="200" r="30" fill="#4361ee"/>
+                    <circle cx="310" cy="190" r="5" fill="white"/>
+                    <circle cx="290" cy="190" r="5" fill="white"/>
+                    
+                    <!-- Spider legs -->
+                    <path d="M280,180 C260,160 240,170 220,160" stroke="#4361ee" stroke-width="4" fill="none"/>
+                    <path d="M280,220 C260,240 240,230 220,240" stroke="#4361ee" stroke-width="4" fill="none"/>
+                    <path d="M320,180 C340,160 360,170 380,160" stroke="#4361ee" stroke-width="4" fill="none"/>
+                    <path d="M320,220 C340,240 360,230 380,240" stroke="#4361ee" stroke-width="4" fill="none"/>
+                    
+                    <!-- Magnifying glass -->
+                    <circle cx="420" cy="170" r="30" fill="none" stroke="#f87171" stroke-width="6"/>
+                    <line x1="440" y1="190" x2="480" y2="230" stroke="#f87171" stroke-width="6"/>
+                    <line x1="400" y1="170" x2="440" y2="170" stroke="#f87171" stroke-width="20" stroke-linecap="round"/>
+                    
+                    <!-- X mark -->
+                    <line x1="435" y1="155" x2="455" y2="175" stroke="#f87171" stroke-width="6"/>
+                    <line x1="435" y1="175" x2="455" y2="155" stroke="#f87171" stroke-width="6"/>
+                </svg>
+            </div>
+            
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-home me-2"></i>Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

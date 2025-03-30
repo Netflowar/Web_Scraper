@@ -1,0 +1,356 @@
+{% extends "base_enhanced.html" %}
+
+{% block title %}Web Scraper Pro - Extract web data easily{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-5 fw-bold mb-3">Web Data Extraction Made Easy</h1>
+        <p class="lead mb-4">Extract, analyze, and save web content with our powerful yet simple scraping tool</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card card-hover-effect shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <ul class="nav nav-tabs card-header-tabs" id="scrapingTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ 'active' if active_tab == 'single-url' else '' }}" id="single-url-tab" data-bs-toggle="tab" data-bs-target="#single-url-content" type="button" role="tab" aria-controls="single-url-content" aria-selected="{{ 'true' if active_tab == 'single-url' else 'false' }}">
+                            <i class="fas fa-globe me-2"></i>Single URL
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ 'active' if active_tab == 'doc-links' else '' }}" id="doc-links-tab" data-bs-toggle="tab" data-bs-target="#doc-links-content" type="button" role="tab" aria-controls="doc-links-content" aria-selected="{{ 'true' if active_tab == 'doc-links' else 'false' }}">
+                            <i class="fas fa-link me-2"></i>Documentation Site
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ 'active' if active_tab == 'pdf-extract' else '' }}" id="pdf-extract-tab" data-bs-toggle="tab" data-bs-target="#pdf-extract-content" type="button" role="tab" aria-controls="pdf-extract-content" aria-selected="{{ 'true' if active_tab == 'pdf-extract' else 'false' }}">
+                            <i class="fas fa-file-pdf me-2"></i>PDF Extraction
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="scrapingTabsContent">
+                    <!-- Single URL Tab Content -->
+                    <div class="tab-pane fade {{ 'show active' if active_tab == 'single-url' else '' }}" id="single-url-content" role="tabpanel" aria-labelledby="single-url-tab">
+                        <form method="post" action="{{ url_for('scrape') }}" class="mt-2" id="scrapingForm">
+                            <div class="mb-4">
+                                <label for="url" class="form-label fw-semibold">Enter Website URL:</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                    <input type="url" class="form-control" id="url" name="url" placeholder="https://example.com" required>
+                                </div>
+                                <div class="form-text">Enter the full URL including http:// or https:// (PDFs will be detected automatically)</div>
+                            </div>
+                            
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-4">
+                                    <label for="depth" class="form-label fw-semibold">Crawl Depth:</label>
+                                    <select class="form-select" id="depth" name="depth">
+                                        <option value="1">1 - Single page only</option>
+                                        <option value="2">2 - Include linked pages (1 level)</option>
+                                        <option value="3">3 - Deep crawl (2 levels)</option>
+                                    </select>
+                                    <div class="form-text">Higher depth values will take longer to complete</div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label for="output_format" class="form-label fw-semibold">Output Format:</label>
+                                    <select class="form-select" id="output_format" name="output_format">
+                                        <option value="html">HTML - Formatted report</option>
+                                        <option value="json">JSON - Structured data</option>
+                                        <option value="txt">TXT - Plain text</option>
+                                    </select>
+                                    <div class="form-text">Choose how your results will be saved</div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label for="scraper_type" class="form-label fw-semibold">Scraper Type:</label>
+                                    <select class="form-select" id="scraper_type" name="scraper_type">
+                                        <option value="enhanced">Enhanced - JavaScript support</option>
+                                        <option value="basic">Basic - Fast, HTML only</option>
+                                    </select>
+                                    <div class="form-text">Enhanced mode handles JavaScript-heavy sites</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-spider me-2"></i>Start Scraping
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Documentation Links Tab Content -->
+                    <div class="tab-pane fade {{ 'show active' if active_tab == 'doc-links' else '' }}" id="doc-links-content" role="tabpanel" aria-labelledby="doc-links-tab">
+                        <form action="{{ url_for('extract_doc_links') }}" method="post">
+                            <div class="mb-3">
+                                <label for="doc_url" class="form-label fw-semibold">Documentation URL</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-book"></i></span>
+                                    <input type="url" class="form-control" id="doc_url" name="url" 
+                                          placeholder="Enter the URL of the documentation site (e.g., https://docs.example.com/)" required>
+                                </div>
+                                <div class="form-text">Enter the main URL of the documentation site you want to extract links from</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="filter_pattern" class="form-label fw-semibold">Filter Pattern (Optional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                                    <input type="text" class="form-control" id="filter_pattern" name="filter_pattern" 
+                                          placeholder="e.g., module, api, reference">
+                                </div>
+                                <div class="form-text">Only include links containing this text (in URL or link text)</div>
+                            </div>
+                            
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label for="max_links" class="form-label fw-semibold">Maximum Links to Process</label>
+                                    <input type="number" class="form-control" id="max_links" name="max_links" value="10" min="1" max="50">
+                                    <div class="form-text">Limit the number of links to process (1-50)</div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="doc_output_format" class="form-label fw-semibold">Output Format</label>
+                                    <select class="form-select" id="doc_output_format" name="output_format">
+                                        <option value="html">HTML - Formatted report</option>
+                                        <option value="json">JSON - Structured data</option>
+                                        <option value="txt">TXT - Plain text</option>
+                                    </select>
+                                    <div class="form-text">Choose how your results will be saved</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="auto_scrape" name="auto_scrape" value="true">
+                                    <label class="form-check-label fw-semibold" for="auto_scrape">
+                                        Automatically scrape all extracted links
+                                    </label>
+                                </div>
+                                <div class="form-text">If checked, all extracted links will be added to the scraping queue</div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-search me-2"></i>Extract Documentation Links
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- PDF Extraction Tab Content -->
+                    <div class="tab-pane fade {{ 'show active' if active_tab == 'pdf-extract' else '' }}" id="pdf-extract-content" role="tabpanel" aria-labelledby="pdf-extract-tab">
+                        <form action="{{ url_for('pdf_extract') }}" method="post" enctype="multipart/form-data">
+                            <div class="mb-4">
+                                <label for="pdf_file" class="form-label fw-semibold">Select PDF File:</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-file-pdf"></i></span>
+                                    <input type="file" class="form-control" id="pdf_file" name="pdf_file" accept=".pdf" required>
+                                </div>
+                                <div class="form-text">Upload a PDF file to extract its content and metadata</div>
+                            </div>
+                            
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label for="pdf_output_format" class="form-label fw-semibold">Output Format:</label>
+                                    <select class="form-select" id="pdf_output_format" name="output_format">
+                                        <option value="html">HTML - Formatted report</option>
+                                        <option value="txt">TXT - Plain text</option>
+                                        <option value="json">JSON - Structured data</option>
+                                    </select>
+                                    <div class="form-text">Choose how your PDF content will be saved</div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="h-100 d-flex flex-column justify-content-center">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="extract_images" name="extract_images" value="true">
+                                            <label class="form-check-label fw-semibold" for="extract_images">
+                                                Extract images (experimental)
+                                            </label>
+                                        </div>
+                                        <div class="form-text">Attempt to extract embedded images from the PDF</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-file-export me-2"></i>Extract PDF Content
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="alert alert-info mt-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span>You can also extract content from PDFs online by entering the PDF URL in the <a href="#" class="alert-link" onclick="document.getElementById('single-url-tab').click(); return false;">Single URL</a> tab. The system will automatically detect PDF files.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features section -->
+<div class="row mt-5">
+    <div class="col-12 text-center mb-4">
+        <h2 class="h3">Key Features</h2>
+        <p class="text-muted">Our web scraper comes with everything you need to extract and analyze web content</p>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h3 class="feature-title h5">Content Extraction</h3>
+            <p class="feature-text">Extract and save web content in multiple formats (HTML, JSON, TXT) for further analysis.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="feature-title h5">Automatic Analysis</h3>
+            <p class="feature-text">Analyze text for readability, sentiment, and extract key information like common words.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <h3 class="feature-title h5">Multi-level Crawling</h3>
+            <p class="feature-text">Follow links to crawl multiple pages at configurable depths for complete data extraction.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <h3 class="feature-title h5">Documentation Scraping</h3>
+            <p class="feature-text">Extract and organize links from documentation sites with specialized handling for technical docs.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fab fa-js"></i>
+            </div>
+            <h3 class="feature-title h5">JavaScript Support</h3>
+            <p class="feature-text">Enhanced mode handles JavaScript-heavy websites, ensuring complete content extraction.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-code"></i>
+            </div>
+            <h3 class="feature-title h5">Code Block Detection</h3>
+            <p class="feature-text">Automatically identify and extract code blocks from technical documentation and websites.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <h3 class="feature-title h5">PDF Extraction</h3>
+            <p class="feature-text">Extract text, metadata, and images from PDF files for analysis and content conversion.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Quick tips -->
+<div class="row mt-4">
+    <div class="col-lg-10 mx-auto">
+        <div class="alert alert-info border-0 d-flex align-items-center mb-3">
+            <i class="fas fa-lightbulb me-3 fs-3"></i>
+            <div>
+                <strong>Pro Tip:</strong> Use the <a href="#" class="alert-link" onclick="document.getElementById('doc-links-tab').click(); return false;">Documentation Site</a> tab above to automatically extract and process multiple pages from documentation sites at once!
+            </div>
+        </div>
+        
+        <div class="alert alert-primary border-0 d-flex align-items-center">
+            <i class="fas fa-magic me-3 fs-3"></i>
+            <div>
+                <strong>New Feature:</strong> Our scraper now supports <a href="#" class="alert-link" onclick="document.getElementById('pdf-extract-tab').click(); return false;">PDF extraction</a>! Upload any PDF file to automatically extract text, metadata, and even images for further analysis and use.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle tab switching and form input focus
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set focus on the correct URL input based on active tab
+        const singleUrlTab = document.getElementById('single-url-tab');
+        const docLinksTab = document.getElementById('doc-links-tab');
+        const pdfExtractTab = document.getElementById('pdf-extract-tab');
+        const urlInput = document.getElementById('url');
+        const docUrlInput = document.getElementById('doc_url');
+        const pdfFileInput = document.getElementById('pdf_file');
+        
+        // Focus the appropriate input when the tab is changed
+        singleUrlTab.addEventListener('shown.bs.tab', function() {
+            urlInput.focus();
+            // Update URL with tab parameter
+            window.history.replaceState(null, null, '?tab=single-url');
+        });
+        
+        docLinksTab.addEventListener('shown.bs.tab', function() {
+            docUrlInput.focus();
+            // Update URL with tab parameter
+            window.history.replaceState(null, null, '?tab=doc-links');
+        });
+        
+        pdfExtractTab.addEventListener('shown.bs.tab', function() {
+            pdfFileInput.focus();
+            // Update URL with tab parameter
+            window.history.replaceState(null, null, '?tab=pdf-extract');
+        });
+        
+        // Focus the appropriate input on page load
+        if (singleUrlTab.classList.contains('active')) {
+            urlInput.focus();
+        } else if (docLinksTab.classList.contains('active')) {
+            docUrlInput.focus();
+        } else if (pdfExtractTab.classList.contains('active')) {
+            pdfFileInput.focus();
+        }
+        
+        // Add animated entrance for feature cards
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach((card, index) => {
+            // Stagger the animation delay
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.style.transitionDelay = (index * 0.1) + 's';
+            
+            // Trigger the animation after a short delay
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}

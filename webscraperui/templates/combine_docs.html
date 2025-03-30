@@ -1,0 +1,349 @@
+{% extends "base_improved.html" %}
+
+{% block title %}Web Scraper Pro - Combine Documentation{% endblock %}
+
+{% block extra_css %}
+<style>
+    .file-select-area {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 20px;
+        background-color: #f8fafc;
+    }
+    
+    .file-checkbox {
+        margin-right: 10px;
+    }
+    
+    .file-item {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        transition: background-color 0.2s;
+    }
+    
+    .file-item:hover {
+        background-color: #e2e8f0;
+    }
+    
+    .file-item-selected {
+        background-color: rgba(67, 97, 238, 0.1);
+        border: 1px solid rgba(67, 97, 238, 0.3);
+    }
+    
+    .file-date {
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+    
+    .batch-summary {
+        background-color: #f0f9ff;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 4px solid #0ea5e9;
+    }
+    
+    .batch-summary h3 {
+        color: #0369a1;
+        margin-top: 0;
+    }
+    
+    .batch-files {
+        margin-top: 15px;
+    }
+    
+    .batch-file {
+        padding: 5px 10px;
+        background-color: rgba(3, 105, 161, 0.1);
+        border-radius: 4px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+        display: inline-block;
+        font-size: 0.85rem;
+    }
+    
+    .tips-card {
+        background-color: #ecfdf5;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 4px solid #10b981;
+    }
+    
+    .tips-card h4 {
+        color: #047857;
+        margin-top: 0;
+    }
+    
+    .tips-list {
+        margin-bottom: 0;
+    }
+    
+    .tips-list li {
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-6 fw-bold mb-3">Combine Documentation Files</h1>
+        <p class="lead">Create a comprehensive document by combining multiple scraped files</p>
+    </div>
+</div>
+
+{% if batch_info and batch_info.results %}
+<div class="row mb-4">
+    <div class="col-lg-10 mx-auto">
+        <div class="batch-summary">
+            <h3><i class="fas fa-layer-group me-2"></i>Recent Batch Results Available</h3>
+            <p>You have recently scraped {{ batch_info.successful }} documentation pages. You can combine these into a single document.</p>
+            
+            <div class="batch-files">
+                {% for result in batch_info.results %}
+                    {% if result.status == 'success' %}
+                        <span class="batch-file">
+                            <i class="fas fa-file-alt me-1"></i> {{ result.text|truncate(20) }}
+                        </span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            <div class="mt-3">
+                <a href="{{ url_for('combine_batch') }}" class="btn btn-primary">
+                    <i class="fas fa-object-group me-2"></i>Combine Batch Files
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h2 class="h4 mb-0"><i class="fas fa-object-group me-2"></i>Create Combined Document</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('combine_docs_page') }}" id="combineForm">
+                    <div class="mb-4">
+                        <label for="title" class="form-label fw-semibold">Document Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="Combined Documentation" required>
+                        <div class="form-text">Enter a title for the combined document</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="output_format" class="form-label fw-semibold">Output Format</label>
+                        <select class="form-select" id="output_format" name="output_format">
+                            <option value="html">HTML - Interactive document with navigation</option>
+                            <option value="txt">TXT - Plain text (simpler, smaller file size)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Select Files to Combine</label>
+                        <div class="file-select-area">
+                            {% if files %}
+                                {% for file in files %}
+                                    <div class="file-item d-flex align-items-center">
+                                        <input type="checkbox" class="file-checkbox form-check-input" id="file-{{ loop.index }}" name="files" value="{{ file.path }}">
+                                        <label class="ms-2 form-check-label flex-grow-1" for="file-{{ loop.index }}">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>{{ file.name }}</strong>
+                                                    <div class="file-date">{{ file.date|timestamp_to_datetime }}</div>
+                                                </div>
+                                                <span class="badge bg-light text-dark">{{ (file.size / 1024)|round(1) }} KB</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                    <p>No files found in the scraped_data folder.</p>
+                                    <p>Try scraping some documentation first.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg" id="combineBtn">
+                            <i class="fas fa-object-group me-2"></i>Combine Selected Files
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="tips-card mb-4">
+            <h4><i class="fas fa-lightbulb me-2"></i>Tips for Combining Docs</h4>
+            <ul class="tips-list">
+                <li>Select multiple files from the same documentation site for best results</li>
+                <li>Files will be combined in the order they appear in the list (newest first)</li>
+                <li>HTML format creates an interactive document with navigation</li>
+                <li>For large sets of documentation, combine the most important modules first</li>
+            </ul>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h3 class="h5 mb-0">Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('history') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-history me-2"></i>View Scraping History
+                    </a>
+                    
+                    <a href="{{ url_for('extract_doc_links_page') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-link me-2"></i>Extract More Documentation Links
+                    </a>
+                    
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-home me-2"></i>Back to Home
+                    </a>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="selectAllFiles">
+                    <label class="form-check-label" for="selectAllFiles">
+                        Select/Deselect All Files
+                    </label>
+                </div>
+                
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-secondary" id="filterHtmlBtn">
+                        <i class="fas fa-filter me-1"></i>Only HTML
+                    </button>
+                    <button class="btn btn-sm btn-secondary" id="filterTxtBtn">
+                        <i class="fas fa-filter me-1"></i>Only TXT
+                    </button>
+                    <button class="btn btn-sm btn-secondary" id="showAllBtn">
+                        <i class="fas fa-list me-1"></i>Show All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select/Deselect All functionality
+        const selectAllCheckbox = document.getElementById('selectAllFiles');
+        const fileCheckboxes = document.querySelectorAll('.file-checkbox');
+        
+        selectAllCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            fileCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                updateFileItemStyle(checkbox);
+            });
+        });
+        
+        // Update selected style when individual checkboxes change
+        fileCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateFileItemStyle(this);
+                
+                // Update select all checkbox
+                const allChecked = Array.from(fileCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(fileCheckboxes).some(cb => cb.checked);
+                
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = someChecked && !allChecked;
+            });
+            
+            // Initialize styles
+            updateFileItemStyle(checkbox);
+        });
+        
+        // Filter buttons
+        const filterHtmlBtn = document.getElementById('filterHtmlBtn');
+        const filterTxtBtn = document.getElementById('filterTxtBtn');
+        const showAllBtn = document.getElementById('showAllBtn');
+        
+        filterHtmlBtn.addEventListener('click', function() {
+            filterFilesByExtension('.html');
+        });
+        
+        filterTxtBtn.addEventListener('click', function() {
+            filterFilesByExtension('.txt');
+        });
+        
+        showAllBtn.addEventListener('click', function() {
+            showAllFiles();
+        });
+        
+        // Form validation before submit
+        const combineForm = document.getElementById('combineForm');
+        const combineBtn = document.getElementById('combineBtn');
+        
+        combineForm.addEventListener('submit', function(e) {
+            const checkedBoxes = document.querySelectorAll('.file-checkbox:checked');
+            
+            if (checkedBoxes.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one file to combine.');
+                return false;
+            }
+            
+            if (checkedBoxes.length === 1) {
+                const confirmSingle = confirm('You selected only one file. Combining a single file will simply create a copy with navigation. Continue?');
+                if (!confirmSingle) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            
+            // Add loading state
+            combineBtn.disabled = true;
+            combineBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Combining Files...';
+        });
+        
+        // Helper functions
+        function updateFileItemStyle(checkbox) {
+            const fileItem = checkbox.closest('.file-item');
+            if (checkbox.checked) {
+                fileItem.classList.add('file-item-selected');
+            } else {
+                fileItem.classList.remove('file-item-selected');
+            }
+        }
+        
+        function filterFilesByExtension(extension) {
+            const fileItems = document.querySelectorAll('.file-item');
+            
+            fileItems.forEach(item => {
+                const fileName = item.querySelector('strong').textContent;
+                
+                if (fileName.toLowerCase().endsWith(extension)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        function showAllFiles() {
+            const fileItems = document.querySelectorAll('.file-item');
+            fileItems.forEach(item => {
+                item.style.display = '';
+            });
+        }
+    });
+</script>
+{% endblock %}

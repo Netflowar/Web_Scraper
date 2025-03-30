@@ -1,0 +1,180 @@
+{% extends "base_improved.html" %}
+
+{% block title %}Web Scraper Pro - Extract web data easily{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-5 fw-bold mb-3">Web Data Extraction Made Easy</h1>
+        <p class="lead mb-4">Extract, analyze, and save web content with our powerful yet simple scraping tool</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0 d-flex align-items-center">
+                    <i class="fas fa-globe me-3"></i>Start Your Web Scraping
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('scrape') }}" class="mt-2" id="scrapingForm">
+                    <div class="mb-4">
+                        <label for="url" class="form-label fw-semibold">Enter Website URL:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-link"></i></span>
+                            <input type="url" class="form-control" id="url" name="url" placeholder="https://example.com" required>
+                        </div>
+                        <div class="form-text">Enter the full URL including http:// or https://</div>
+                    </div>
+                    
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <label for="depth" class="form-label fw-semibold">Crawl Depth:</label>
+                            <select class="form-select" id="depth" name="depth">
+                                <option value="1">1 - Single page only</option>
+                                <option value="2">2 - Include linked pages (1 level)</option>
+                                <option value="3">3 - Deep crawl (2 levels)</option>
+                            </select>
+                            <div class="form-text">Higher depth values will take longer to complete</div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="output_format" class="form-label fw-semibold">Output Format:</label>
+                            <select class="form-select" id="output_format" name="output_format">
+                                <option value="html">HTML - Formatted report</option>
+                                <option value="json">JSON - Structured data</option>
+                                <option value="txt">TXT - Plain text</option>
+                            </select>
+                            <div class="form-text">Choose how your results will be saved</div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="scraper_type" class="form-label fw-semibold">Scraper Type:</label>
+                            <select class="form-select" id="scraper_type" name="scraper_type">
+                                <option value="enhanced">Enhanced - JavaScript support</option>
+                                <option value="basic">Basic - Fast, HTML only</option>
+                            </select>
+                            <div class="form-text">Enhanced mode handles JavaScript-heavy sites</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-spider me-2"></i>Start Scraping
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Quit Application Button -->
+            <div class="mt-6 text-center">
+                <a href="/quit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Are you sure you want to quit the application?')">
+                    Quit Application
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features section -->
+<div class="row mt-5">
+    <div class="col-12 text-center mb-4">
+        <h2 class="h3">Key Features</h2>
+        <p class="text-muted">Our web scraper comes with everything you need to extract and analyze web content</p>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card h-100">
+            <div class="feature-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h3 class="feature-title h5">Content Extraction</h3>
+            <p class="feature-text">Extract and save web content in multiple formats (HTML, JSON, TXT) for further analysis.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card h-100">
+            <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="feature-title h5">Automatic Analysis</h3>
+            <p class="feature-text">Analyze text for readability, sentiment, and extract key information like common words.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card h-100">
+            <div class="feature-icon">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <h3 class="feature-title h5">Multi-level Crawling</h3>
+            <p class="feature-text">Follow links to crawl multiple pages at configurable depths for complete data extraction.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card h-100">
+            <div class="feature-icon">
+                <i class="fab fa-js"></i>
+            </div>
+            <h3 class="feature-title h5">JavaScript Support</h3>
+            <p class="feature-text">Enhanced mode handles JavaScript-heavy websites, ensuring complete content extraction.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card h-100">
+            <div class="feature-icon">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <h3 class="feature-title h5">PDF Extraction</h3>
+            <p class="feature-text">Extract and analyze content from PDF files with our specialized PDF processing capabilities.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="feature-card h-100">
+            <div class="feature-icon">
+                <i class="fas fa-code"></i>
+            </div>
+            <h3 class="feature-title h5">Code Block Detection</h3>
+            <p class="feature-text">Automatically identify and extract code blocks from technical documentation and websites.</p>
+        </div>
+    </div>
+</div>
+
+<!-- New features alerts -->
+<div class="row mt-4">
+    <div class="col-lg-10 mx-auto">
+        <div class="alert alert-info border-0 d-flex align-items-center mb-3">
+            <i class="fas fa-lightbulb me-3 fs-3"></i>
+            <div>
+                <strong>New Feature:</strong> Our scraper now supports advanced PDF extraction! Enter a URL to a PDF document to automatically extract and analyze its content.
+            </div>
+        </div>
+        
+        <div class="alert alert-primary border-0 d-flex align-items-center">
+            <i class="fas fa-link me-3 fs-3"></i>
+            <div>
+                <strong>New Feature:</strong> Try our <a href="{{ url_for('extract_doc_links_page') }}" class="alert-link">Documentation Link Extractor</a> to extract and scrape multiple pages from documentation sites in one go!
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add smooth scrolling for the start button
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlInput = document.getElementById('url');
+        // Focus the URL input when the page loads
+        if (urlInput) {
+            urlInput.focus();
+        }
+    });
+</script>
+{% endblock %}

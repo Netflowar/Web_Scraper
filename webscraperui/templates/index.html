@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Web Scraper - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h1 class="h4 mb-0">
+                    <i class="fas fa-globe me-2"></i>Web Scraper
+                </h1>
+            </div>
+            <div class="card-body">
+                <p class="lead">Enter a URL to scrape website content and analyze it.</p>
+                
+                <form method="post" action="{{ url_for('scrape') }}" class="mt-4">
+                    <div class="mb-3">
+                        <label for="url" class="form-label">Enter URL:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-link"></i></span>
+                            <input type="url" class="form-control" id="url" name="url" placeholder="https://example.com" required>
+                        </div>
+                        <div class="form-text">Enter the full URL including http:// or https://</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="depth" class="form-label">Crawl Depth:</label>
+                            <select class="form-select" id="depth" name="depth">
+                                <option value="1">1 - Single page only</option>
+                                <option value="2">2 - Include linked pages (1 level)</option>
+                                <option value="3">3 - Deep crawl (2 levels)</option>
+                            </select>
+                            <div class="form-text">Higher depth values will take longer to complete</div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="output_format" class="form-label">Output Format:</label>
+                            <select class="form-select" id="output_format" name="output_format">
+                                <option value="txt">TXT - Plain text</option>
+                                <option value="json">JSON - Structured data</option>
+                                <option value="html">HTML - Formatted report</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="scraper_type" class="form-label">Scraper Type:</label>
+                            <select class="form-select" id="scraper_type" name="scraper_type">
+                                <option value="basic">Basic - Fast, HTML only</option>
+                                <option value="enhanced">Enhanced - JavaScript support</option>
+                            </select>
+                            <div class="form-text">Enhanced mode handles JavaScript-heavy sites</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-spider me-2"></i>Start Scraping
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-4">
+                    <h5>Features:</h5>
+                    <ul>
+                        <li>Extract and analyze website content</li>
+                        <li>Save results in multiple formats (TXT, JSON, HTML)</li>
+                        <li>Crawl linked pages with configurable depth</li>
+                        <li>Analyze text for readability, sentiment, and keywords</li>
+                        <li>Extract images, headings, links, tables, and code blocks</li>
+                        <li>Enhanced mode for JavaScript-heavy websites</li>
+                        <li>PDF support - extract and analyze PDF content</li>
+                        <li>Automatic content analysis with word frequency and reading time</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>New:</strong> The scraper now supports PDF files! Enter a URL to a PDF document to extract its content.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Web Scraper - Results{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-section {
+        margin-bottom: 20px;
+    }
+    .content-preview {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+        white-space: pre-wrap;
+    }
+    .badge-section {
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h1 class="h4 mb-0">
+                    <i class="fas fa-check-circle me-2"></i>Scraping Results
+                </h1>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success mb-4">
+                    <i class="fas fa-check-circle me-2"></i>Successfully scraped: <strong>{{ result.url }}</strong>
+                </div>
+                
+                <!-- Title and Meta -->
+                <div class="result-section">
+                    <h3>{{ result.title }}</h3>
+                    <p class="text-muted">
+                        <i class="fas fa-link me-1"></i> 
+                        <a href="{{ result.url }}" target="_blank">{{ result.url }}</a>
+                    </p>
+                </div>
+                
+                <!-- Output File -->
+                <div class="result-section">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file-alt me-2"></i>Output File
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Scraped content has been saved to:</p>
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('view_file', filename=result.output_path.split('/')[-1]) }}" class="btn btn-primary">
+                                    <i class="fas fa-eye me-2"></i>View {{ result.output_path.split('/')[-1] }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content Preview -->
+                <div class="result-section">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file-alt me-2"></i>Content Preview
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="content-preview">
+                                {{ result.content|truncate(1000) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="row mt-4">
+                    <div class="col-md-6 d-grid gap-2">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">
+                            <i class="fas fa-spider me-2"></i>Scrape Another URL
+                        </a>
+                    </div>
+                    <div class="col-md-6 d-grid gap-2">
+                        <a href="{{ url_for('history') }}" class="btn btn-secondary">
+                            <i class="fas fa-history me-2"></i>View Scraping History
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

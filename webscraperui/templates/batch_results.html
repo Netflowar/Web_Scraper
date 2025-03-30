@@ -1,0 +1,219 @@
+{% extends "base_improved.html" %}
+
+{% block title %}Web Scraper Pro - Batch Scraping Results{% endblock %}
+
+{% block extra_css %}
+<style>
+    .batch-result-card {
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .batch-result-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .batch-header {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        padding: 25px;
+    }
+    
+    .batch-stats {
+        padding: 20px;
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 0 10px;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #3a0ca3;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .result-table {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .result-row-success {
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+    
+    .result-row-error {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+    
+    .url-display {
+        max-width: 350px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
+    
+    @media (max-width: 768px) {
+        .stat-value {
+            font-size: 1.5rem;
+        }
+        
+        .url-display {
+            max-width: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="batch-result-card">
+    <div class="batch-header">
+        <h2 class="mb-3"><i class="fas fa-tasks me-2"></i>Batch Scraping Results</h2>
+        <p class="mb-0 lead">Multiple documentation pages scraped</p>
+    </div>
+    
+    <div class="batch-stats">
+        <div class="stat-item">
+            <div class="stat-value">{{ result.summary.total_links }}</div>
+            <div class="stat-label">Total Links</div>
+        </div>
+        
+        <div class="stat-item">
+            <div class="stat-value">{{ result.summary.processed_links }}</div>
+            <div class="stat-label">Processed</div>
+        </div>
+        
+        <div class="stat-item">
+            <div class="stat-value text-success">{{ result.summary.successful }}</div>
+            <div class="stat-label">Successful</div>
+        </div>
+        
+        <div class="stat-item">
+            <div class="stat-value text-danger">{{ result.summary.failed }}</div>
+            <div class="stat-label">Failed</div>
+        </div>
+    </div>
+
+    <div class="result-table">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>URL</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in result.summary.results %}
+                    <tr class="result-row-{{ item.status }}">
+                        <td>{{ loop.index }}</td>
+                        <td>{{ item.text }}</td>
+                        <td>
+                            <a href="{{ item.url }}" target="_blank" class="url-display">
+                                {{ item.url }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if item.status == 'success' %}
+                                <span class="badge bg-success">Success</span>
+                            {% else %}
+                                <span class="badge bg-danger">Failed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.status == 'success' and item.file %}
+                                <a href="{{ url_for('view_file', filename=item.file.split('/')[-1]) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            {% elif item.status == 'error' %}
+                                <span class="text-danger small">{{ item.error|truncate(30) }}</span>
+                            {% else %}
+                                <span class="text-muted">No file</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h3 class="h5 mb-0">Batch Processing Details</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <h5>Documentation Site</h5>
+                    <p>{{ result.url }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h5>Format</h5>
+                    <p>{{ result.summary.output_format|upper }}</p>
+                </div>
+                
+                {% if result.summary.is_readthedocs %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> 
+                    <strong>ReadTheDocs site detected!</strong> 
+                    <p class="mb-0 small">Special processing applied for optimal documentation extraction.</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+                <div class="alert alert-light border">
+                    <h5><i class="fas fa-lightbulb me-2"></i>Next Steps</h5>
+                    <p>All scraped content has been saved to your history. You can:</p>
+                    <ul class="mb-0 small">
+                        <li>Click "View" next to each item to see its full content</li>
+                        <li>Go to the History page to access all saved files</li>
+                        <li>Extract links from another documentation site</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between">
+    <div>
+        <a href="{{ url_for('extract_doc_links_page') }}" class="btn btn-outline-primary">
+            <i class="fas fa-search me-2"></i>Extract Different Links
+        </a>
+        
+        <a href="{{ url_for('combine_docs_page') }}" class="btn btn-primary">
+            <i class="fas fa-object-group me-2"></i>Combine All Documents
+        </a>
+    </div>
+    
+    <div>
+        <a href="{{ url_for('history') }}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-history me-2"></i>View History
+        </a>
+        
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-home me-2"></i>Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

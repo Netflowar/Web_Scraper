@@ -1,0 +1,399 @@
+{% extends "base_improved.html" %}
+
+{% block title %}Web Scraper Pro - Scraping Results{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-section {
+        margin-bottom: 25px;
+    }
+    
+    .content-preview {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 20px;
+        background-color: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        white-space: pre-wrap;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    
+    .info-card {
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .info-card-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+    
+    .info-card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .info-card-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dark-color);
+    }
+    
+    .info-card-subtitle {
+        color: var(--gray-color);
+        font-size: 0.875rem;
+    }
+    
+    .url-display {
+        background-color: rgba(67, 97, 238, 0.1);
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 0.9rem;
+        word-break: break-all;
+    }
+    
+    .success-banner {
+        background: linear-gradient(135deg, var(--success-color), #2dd4bf);
+        color: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 15px -3px rgba(74, 222, 128, 0.2);
+    }
+    
+    .success-banner-icon {
+        font-size: 2.5rem;
+        margin-right: 20px;
+    }
+    
+    .success-banner-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .success-banner-text {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .tab-pane {
+        padding: 25px;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 15px 25px;
+        border: none;
+        border-radius: 0;
+        font-weight: 500;
+        color: var(--gray-color);
+        position: relative;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: var(--primary-color);
+        background-color: transparent;
+        font-weight: 600;
+    }
+    
+    .nav-tabs .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: var(--primary-color);
+        border-radius: 3px 3px 0 0;
+    }
+    
+    .badge-section {
+        margin-top: 20px;
+    }
+    
+    .data-badge {
+        background-color: #f1f5f9;
+        border-radius: 30px;
+        padding: 8px 16px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        display: inline-block;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+    
+    .data-badge i {
+        margin-right: 8px;
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Success Banner -->
+<div class="success-banner d-flex align-items-center">
+    <div class="success-banner-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <div>
+        <h2 class="success-banner-title">Scraping Completed Successfully</h2>
+        <p class="success-banner-text mb-0">We've extracted and analyzed all the data from your requested URL</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Main Content Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <ul class="nav nav-tabs card-header-tabs" id="resultTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="overview-tab" data-bs-toggle="tab" href="#overview" role="tab" aria-controls="overview" aria-selected="true">
+                            <i class="fas fa-home me-2"></i>Overview
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="content-tab" data-bs-toggle="tab" href="#content" role="tab" aria-controls="content" aria-selected="false">
+                            <i class="fas fa-file-alt me-2"></i>Content
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="details-tab" data-bs-toggle="tab" href="#details" role="tab" aria-controls="details" aria-selected="false">
+                            <i class="fas fa-info-circle me-2"></i>Details
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-0">
+                <div class="tab-content" id="resultTabsContent">
+                    <!-- Overview Tab -->
+                    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                        <div class="p-4">
+                            <h3 class="mb-4">{{ result.title }}</h3>
+                            
+                            <div class="mb-4">
+                                <h5 class="text-muted mb-2">URL</h5>
+                                <div class="url-display">
+                                    <a href="{{ result.url }}" target="_blank" class="text-primary">{{ result.url }}</a>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <div class="info-card">
+                                        <div class="info-card-icon">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                        <div class="info-card-title">Output File</div>
+                                        <div class="info-card-value">
+                                            {% if result.output_path.endswith('.html') %}
+                                                HTML
+                                            {% elif result.output_path.endswith('.json') %}
+                                                JSON
+                                            {% else %}
+                                                TXT
+                                            {% endif %}
+                                        </div>
+                                        <div class="info-card-subtitle">{{ result.output_path.split('/')[-1] }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="info-card">
+                                        <div class="info-card-icon">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        <div class="info-card-title">Completion Time</div>
+                                        <div class="info-card-value">{{ (result.content|length / 2000)|round(1) }} sec</div>
+                                        <div class="info-card-subtitle">Extraction Speed</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <a href="{{ url_for('view_file', filename=result.output_path.split('/')[-1]) }}" class="btn btn-primary">
+                                    <i class="fas fa-eye me-2"></i>View Complete Results
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Tab -->
+                    <div class="tab-pane fade" id="content" role="tabpanel" aria-labelledby="content-tab">
+                        <div class="p-4">
+                            <h4 class="mb-3">Content Preview</h4>
+                            <div class="content-preview">
+                                {{ result.content|truncate(2000) }}
+                            </div>
+                            
+                            <div class="badge-section">
+                                <span class="data-badge">
+                                    <i class="fas fa-file-alt"></i>{{ (result.content|length / 1000)|round(1) }}KB of data
+                                </span>
+                                
+                                <span class="data-badge">
+                                    <i class="fas fa-paragraph"></i>{{ (result.content.split('\n')|length) }} paragraphs
+                                </span>
+                                
+                                <span class="data-badge">
+                                    <i class="fas fa-align-left"></i>{{ (result.content.split(' ')|length) }} words
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Details Tab -->
+                    <div class="tab-pane fade" id="details" role="tabpanel" aria-labelledby="details-tab">
+                        <div class="p-4">
+                            <h4 class="mb-4">Extraction Details</h4>
+                            
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-card">
+                                        <div class="info-card-icon">
+                                            <i class="fas fa-link"></i>
+                                        </div>
+                                        <div class="info-card-title">Domain</div>
+                                        <div class="info-card-value code-font">{{ result.url.split('/')[2] }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="info-card">
+                                        <div class="info-card-icon">
+                                            <i class="fas fa-spider"></i>
+                                        </div>
+                                        <div class="info-card-title">Scraping Method</div>
+                                        <div class="info-card-value">{{ result.status|capitalize }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h5 class="mb-3">File Location</h5>
+                                <div class="url-display">
+                                    {{ result.output_path }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Actions Panel -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">Next Steps</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('view_file', filename=result.output_path.split('/')[-1]) }}" class="btn btn-primary">
+                        <i class="fas fa-eye me-2"></i>View Full Results
+                    </a>
+                    
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-spider me-2"></i>Scrape Another URL
+                    </a>
+                    
+                    <a href="{{ url_for('history') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-history me-2"></i>View Scraping History
+                    </a>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="alert alert-info border-0">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="fas fa-lightbulb fs-4"></i>
+                        </div>
+                        <div>
+                            <h6>Pro Tip</h6>
+                            <p class="mb-0 small">For JavaScript-heavy websites, always use the Enhanced scraper mode to ensure complete content extraction.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Info Panel -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">About This Result</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Title Length</span>
+                        <span class="badge bg-primary rounded-pill">{{ result.title|length }} chars</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Content Size</span>
+                        <span class="badge bg-primary rounded-pill">{{ (result.content|length / 1000)|round(1) }}KB</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Format</span>
+                        <span class="badge bg-primary rounded-pill">
+                            {% if result.output_path.endswith('.html') %}
+                                HTML
+                            {% elif result.output_path.endswith('.json') %}
+                                JSON
+                            {% else %}
+                                TXT
+                            {% endif %}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Related Actions -->
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('index') }}" class="btn btn-primary mx-2">
+            <i class="fas fa-spider me-2"></i>Scrape Another URL
+        </a>
+        <a href="{{ url_for('history') }}" class="btn btn-secondary mx-2">
+            <i class="fas fa-history me-2"></i>View All Scraping History
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize Bootstrap tabs
+    document.addEventListener('DOMContentLoaded', function() {
+        const triggerTabList = [].slice.call(document.querySelectorAll('#resultTabs a'));
+        triggerTabList.forEach(function(triggerEl) {
+            const tabTrigger = new bootstrap.Tab(triggerEl);
+            
+            triggerEl.addEventListener('click', function(event) {
+                event.preventDefault();
+                tabTrigger.show();
+            });
+        });
+    });
+</script>
+{% endblock %}
